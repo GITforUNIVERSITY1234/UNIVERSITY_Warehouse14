@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Товары с остатком менее {{ threshold }} шт.</h2>
+
+<div>
+    <div>
+        <label>Сортировка: </label>
+        <select onchange="location.href='{{ url_for('low_stock') }}?sort='+this.value">
+            <option value="id_desc" {% if selected_sort == 'id_desc' %}selected{% endif %}>По умолчанию</option>
+            <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Цена (по возрастанию)</option>
+            <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Цена (по убыванию)</option>
+            <option value="quantity_asc" {% if selected_sort == 'quantity_asc' %}selected{% endif %}>Количество (по возрастанию)</option>
+            <option value="quantity_desc" {% if selected_sort == 'quantity_desc' %}selected{% endif %}>Количество (по убыванию)</option>
+        </select>
+    </div>
+</div>
+
+<br>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Название</th>
+            <th>Категория</th>
+            <th>Количество</th>
+            <th>Цена (₽)</th>
+            <th>Поставщик</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.category }}</td>
+            <td>
+                <strong>{{ product.quantity }}</strong> ⚠️
+            </td>
+            <td>{{ "%.2f"|format(product.price) }} ₽</td>
+            <td>{{ product.supplier }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6">Нет товаров с малым остатком</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

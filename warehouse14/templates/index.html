@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Все товары</h2>
+
+<div>
+    <div>
+        <label>Категория: </label>
+        <select onchange="location.href='{{ url_for('index') }}?category='+this.value+'&sort={{ selected_sort }}'">
+            <option value="all" {% if selected_category == 'all' %}selected{% endif %}>Все категории</option>
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div>
+        <label>Сортировка: </label>
+        <select onchange="location.href='{{ url_for('index') }}?category={{ selected_category }}&sort='+this.value">
+            <option value="id_desc" {% if selected_sort == 'id_desc' %}selected{% endif %}>По умолчанию</option>
+            <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Цена (по возрастанию)</option>
+            <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Цена (по убыванию)</option>
+            <option value="quantity_asc" {% if selected_sort == 'quantity_asc' %}selected{% endif %}>Количество (по возрастанию)</option>
+            <option value="quantity_desc" {% if selected_sort == 'quantity_desc' %}selected{% endif %}>Количество (по убыванию)</option>
+        </select>
+    </div>
+</div>
+
+<br>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Название</th>
+            <th>Категория</th>
+            <th>Количество</th>
+            <th>Цена (₽)</th>
+            <th>Поставщик</th>
+            <th>Редактировать</th>
+            <th>Удалить</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.category }}</td>
+            <td>
+                <form action="{{ url_for('update_quantity_route', product_id=product.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="action" value="decrease">
+                    <button type="submit">-</button>
+                </form>
+                <strong>{{ product.quantity }}</strong>
+                {% if product.quantity < low_stock_threshold %}⚠️{% endif %}
+                <form action="{{ url_for('update_quantity_route', product_id=product.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="action" value="increase">
+                    <button type="submit">+</button>
+                </form>
+            </td>
+            <td>{{ "%.2f"|format(product.price) }} ₽</td>
+            <td>{{ product.supplier }}</td>
+            <td>
+                <a href="{{ url_for('edit_product_route', product_id=product.id) }}">Редактировать</a>
+            </td>
+            <td>
+                <form action="{{ url_for('delete_product_route', product_id=product.id) }}" method="POST" style="display: inline;">
+                    <button type="submit">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
